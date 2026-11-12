@@ -19,6 +19,7 @@ const int rele = 12;
 
 const unsigned long intervaloLeitura = 15000UL; // intervalo entre leituras dos sensores (ms)
 const unsigned long intervaloTela = 4000UL;     // intervalo de troca das telas (ms)
+const unsigned long tempoEstabilizacaoUV = 15000UL; // espera após ligar a lâmpada (ms)
 
 Adafruit_SSD1306 display(OLED_WIDTH, OLED_HEIGHT, &Wire, OLED_RESET);
 OneWire oneWire(ONE_WIRE_BUS);
@@ -59,6 +60,10 @@ void setup() {
   sensors.begin();
   delay(2000);
   digitalWrite(rele, HIGH);
+
+  // Aguarda a fonte UV estabilizar antes de considerar a primeira medição.
+  // Ajuste tempoEstabilizacaoUV conforme o comportamento da sua lâmpada.
+  delay(tempoEstabilizacaoUV);
 
   temperatura = lerTemperaturaMedia();
   temperaturaValida = (temperatura != DEVICE_DISCONNECTED_C);
@@ -224,9 +229,9 @@ void desenharTela() {
     display.setTextSize(1);
     display.setCursor(2, 53);
     display.print(F("Min "));
-    display.print(Vmin, 2);
+    display.print(Vmin, 3);
     display.print(F(" Max "));
-    display.print(Vmax, 2);
+    display.print(Vmax, 3);
 
   } else {
     // Página 3: integral temporal da tensão, separada da leitura de tensão.
